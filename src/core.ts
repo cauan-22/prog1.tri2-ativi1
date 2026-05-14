@@ -1,5 +1,5 @@
 class Item {
-  constructor(public item: string) { }
+  constructor(public title: string) { }
 }
 
 class TodoList {
@@ -8,18 +8,40 @@ class TodoList {
 
   constructor(filePath: string) {
     this.filePath = filePath;
+    this.loadListFromDisk()
   }
 
-  addItem(item: Item) {
+  private async saveListToDisk() {
+    const file = Bun.file(this.filePath);
+    const data = JSON.stringify(this.itens);
+    await file.write(data);
+  }
+
+  private async loadListFromDisk(){
+    const file = Bun.file(this.filePath)
+    const data = await file.json()
+    this.itens = data.map((v: any) => new Item(v.title))
+  }  
+  
+  /**
+   * função que adiciona um item
+   */
+  async addItem(item: Item) {
     this.itens.push(item)
+    await this.saveListToDisk()
   }
-
-  removeItem(index: number) {
+  /**
+   * função que remove um item
+   */
+  async removeItem(index: number) {
     this.itens.splice(index, 1);
+    await this.saveListToDisk()
   }
-
+  /**
+   * função que retorna a copia dos itens
+   */
   getItems() {
-    return this.itens
+    return [...this.itens]
   }
 }
 
