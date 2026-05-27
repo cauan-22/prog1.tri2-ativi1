@@ -1,54 +1,74 @@
+/**
+ * @todo
+ * known issues:
+ * - getItems needs to await loadListFromDisk()
+ */
+
+// class Item_ { 
+//   public title: string
+//   constructor(title: string) {
+//     this.title = title
+//   }
+// }
+
 class Item {
   constructor(public title: string) { }
 }
 
 class TodoList {
-  private itens: Item[] = [];
-  private filePath: string;
+  private items: Promise<Item[]>
+  private filePath: string
 
   constructor(filePath: string) {
-    this.filePath = filePath;
-    this.loadListFromDisk()
+    this.filePath = filePath
+    this.items = this.loadListFromDisk()
   }
 
   private async saveListToDisk() {
-    const file = Bun.file(this.filePath);
-    const data = JSON.stringify(this.itens);
-    await file.write(data);
+    const file = Bun.file(this.filePath)
+    const data = JSON.stringify(await this.items)
+    await file.write(data)
   }
 
-  private async loadListFromDisk(){
+  private async loadListFromDisk() {
     const file = Bun.file(this.filePath)
-    const data = await file.json()
-    this.itens = data.map((v: any) => new Item(v.title))
-  }  
-  
+    // const text = await file.text()
+    // const data = JSON.parse(text)
+    const data = await file.json() as Item[]
+    const items = data.map((v: any) => new Item(v.title))
+    return items
+  }
+
   /**
-   * função que adiciona um item
+   * Função que adiciona um novo item a lista
    */
   async addItem(item: Item) {
-    this.itens.push(item)
+    const items = await this.items
+    if (!item) 
+      throw "Item inválido"
+    if (!item.title.trim())
+      throw "Item deve conter um título"
+    items.push(item)
     await this.saveListToDisk()
   }
+
   /**
-   * função que remove um item
+   * Remove item da lista por um indice
    */
   async removeItem(index: number) {
-    this.itens.splice(index, 1);
+    const items = await this.items
+    items.splice(index, 1)
     await this.saveListToDisk()
   }
+
   /**
-   * função que retorna a copia dos itens
+   * Retorna a cópia da lista de itens
    */
-  getItems() {
-    return [...this.itens]
+  async getItems() {
+    const items = await this.items
+    return Array.from(items)
   }
 }
 
-
-const lista = new TodoList('arquivo.txt')
-lista.addItem(new Item("comprar abacate"))
-lista.addItem(new Item("aprender javascript"))
-lista.removeItem(1)
-lista.addItem(new Item("aprender typescript"))
-console.log(lista.getItems())
+export default TodoList
+export { TodoList, Item }
