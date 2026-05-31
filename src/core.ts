@@ -44,7 +44,7 @@ class TodoList {
    */
   async addItem(item: Item) {
     const items = await this.items
-    if (!item) 
+    if (!item)
       throw "Item inválido"
     if (!item.title.trim())
       throw "Item deve conter um título"
@@ -68,7 +68,17 @@ class TodoList {
     const items = await this.items
     return Array.from(items)
   }
+
+  /**
+   * modifica um item da lista - parte feita em casa para trabalho
+   */
+  async updateItems(index: number, item: string) {
+    const items = await this.items
+    items[index] = new Item(item)
+    await this.saveListToDisk()
+  }
 }
+
 
 export default TodoList
 export { TodoList, Item }
