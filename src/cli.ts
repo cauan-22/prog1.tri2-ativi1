@@ -139,4 +139,5 @@ console.log(`Comandos disponíveis:
 - add <item>: Adiciona um item à lista
 - remove <index>: Remove um item da lista por indice
 - list: Lista os itens atuais
+- update<index, item>: modifica um item da lista
 `)
